@@ -1,1 +1,4 @@
 ## Worker Java App
+
+* Build Status
+[![Build Status](http://18.213.161.182:8080/buildStatus/icon?job=instavote%2Fworker-build)](http://18.213.161.182:8080/job/instavote/job/worker-build/)
