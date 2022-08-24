@@ -1,26 +1,28 @@
 pipeline {
+    
     agent any
 
-    tools {
+    tools{
         nodejs 'NodeJS 8.9.0'
     }
-    stages {
-        stage('build') {
-            when {
-                changeset '**/result/**'
+
+    stages{
+        stage('build'){
+            when{
+                changeset "**/result/**"
             }
-            steps {
+            steps{
                 echo 'Compiling result app'
                 dir('result') {
                     sh 'npm install'
                 }
             }
         }
-        stage('test') {
-            when {
-                changeset '**/result/**'
+        stage('test'){
+            when{
+                changeset "**/result/**"
             }
-            steps {
+            steps{
                 echo 'Running Unit Tests on result app'
                 dir('result') {
                     sh 'npm install'
@@ -29,5 +31,4 @@ pipeline {
             }
         }
     }
-
 }
