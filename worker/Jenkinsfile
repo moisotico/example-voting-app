@@ -1,10 +1,11 @@
 pipeline {
-
+    
     agent any
 
-    tools{
+    tools {
         maven 'Maven 3.8.4'
     }
+
     stages {
         stage('build') {
             when {
@@ -12,10 +13,9 @@ pipeline {
             }
             steps {
                 echo 'Compiling worker app'
-                dir('worker'){
+                dir('worker') {
                     sh 'mvn compile'
                 }
-                
             }
         }
         stage('test') {
@@ -24,35 +24,35 @@ pipeline {
             }
             steps {
                 echo 'Running Unit Tests on Worker app'
-                dir('worker'){
+                dir('worker') {
                     sh 'mvn clean test'
                 }
             }
         }
         stage('package') {
             when {
-                branch 'master' 
+                branch 'master'
                 changeset '**/worker/**'
             }
             steps {
                 echo 'Packaging worker app'
-                dir('worker'){
+                dir('worker') {
                     sh 'mvn package -DskipTests'
                     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
                 }
             }
         }
     }
-    
+
     post {
         always {
             echo 'Build pipeline for worker run is completed...'
         }
         failure {
-            slackSend (channel: "instavote-cd", message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            slackSend (channel: 'instavote-cd', message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         }
         success {
-            slackSend (channel: "instavote-cd", message: "Build Succeded - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+            slackSend (channel: 'instavote-cd', message: "Build Succeded - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         }
     }
 }
