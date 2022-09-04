@@ -61,7 +61,6 @@ pipeline {
 
         stage('docker-package') {
             agent any
-
             environment {
                 PARSED_BRANCH_NAME = sh(script: "echo ${BRANCH_NAME} | sed -e 's#/#-#g'", returnStdout: true).trim()
             }
@@ -86,6 +85,12 @@ pipeline {
     post {
         always {
             echo 'Building multibranch pipeline for worker run is completed...'
+        }
+        failure {
+            slackSend (channel: 'instavote-cd', message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+        }
+        success {
+            slackSend (channel: 'instavote-cd', message: "Build Succeded - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
         }
     }
 }

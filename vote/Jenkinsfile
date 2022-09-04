@@ -34,30 +34,35 @@ pipeline {
             steps{
                 echo 'Running Unit Tests on vote app'
                 dir('vote') {
+                    sh 'pip install -r requirements.txt'
                     sh 'nosetests -v'
+                }
+            }
+        }
+
+        stage('docker-package') {
+            agent any
+            environment {
+                PARSED_BRANCH_NAME = sh(script: "echo ${BRANCH_NAME} | sed -e 's#/#-#g'", returnStdout: true).trim()
+            }
+            when {
+                changeset '**/vote/**'
+            }
+            steps {
+                echo 'Packaging vote app with docker'
+                script{
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
+                        def voteImage = docker.build("moisolinux/vote:v${env.BUILD_ID}", "./vote")
+                        voteImage.push()
+                        sh 'echo "parsed branch name is: ${PARSED_BRANCH_NAME}"'
+                        voteImage.push("${PARSED_BRANCH_NAME}")
+                        voteImage.push("latest")
+                    }
                 }
             }
         }
     }
 
-    stage('docker-package') {
-        agent any
-        when {
-            changeset '**/vote/**'
-        }
-        steps {
-            echo 'Packaging vote app with docker'
-            script{
-                docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
-                    def voteImage = docker.build("moisolinux/vote:v${env.BUILD_ID}", "./vote")
-                    voteImage.push()
-                    voteImage.push("${BRANCH_NAME}")
-                    voteImage.push("latest")
-                }
-            }
-        }
-    }
-    }
     post {
         always {
             echo 'Build pipeline for vote is completed...'
