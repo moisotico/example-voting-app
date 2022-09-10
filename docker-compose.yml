@@ -36,7 +36,7 @@ services:
     image: moisolinux/result:master
     build: ./result
     ports: 
-      - 5001:4000
+      - 5002:4000
     depends_on:
       - db
     networks:
